@@ -1,0 +1,162 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"95a3f978-d8a3-48ac-9f22-ac36dda7e592\" name=\"更改\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"CopilotPersistence\">\r\n    <persistenceIdMap>\r\n      <entry key=\"_D:/model/Real-ESRGAN-master1\" value=\"3C7V2NwXuX2dhAlYpPDFFleCr2L\" />\r\n    </persistenceIdMap>\r\n  </component>\r\n  <component name=\"CopilotUserSelectedChatMode\">\r\n    <option name=\"chatModeId\" value=\"Ask\" />\r\n    <option name=\"inlineChatModeId\" value=\"Ask\" />\r\n  </component>\r\n  <component name=\"CopilotUserSelectedModel\">\r\n    <selectedModels>\r\n      <entry key=\"chat-panel\" value=\"GPT-5.3-Codex\" />\r\n      <entry key=\"agent-panel\" value=\"GPT-5.3-Codex\" />\r\n    </selectedModels>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <excluded-from-favorite>\r\n      <branch-storage>\r\n        <map>\r\n          <entry type=\"LOCAL\">\r\n            <value>\r\n              <list>\r\n                <branch-info repo=\"$PROJECT_DIR$\" source=\"master\" />\r\n              </list>\r\n            </value>\r\n          </entry>\r\n        </map>\r\n      </branch-storage>\r\n    </excluded-from-favorite>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;yvette-moon&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/yvette-moon/Real-ESRGAN-master-fp-med.git&quot;,\r\n    &quot;accountId&quot;: &quot;fe30ed80-e148-4848-bd44-5078c4bd085b&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"3C7V2NwXuX2dhAlYpPDFFleCr2L\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;D:/model/Real-ESRGAN-master1/options&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;项目&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,\r\n    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"D:\\model\\Real-ESRGAN-master1\\options\" />\r\n      <recent name=\"D:\\model\\Real-ESRGAN-master1\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106\" />\r\n        <option value=\"bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"默认任务\">\r\n      <changelist id=\"95a3f978-d8a3-48ac-9f22-ac36dda7e592\" name=\"更改\" comment=\"\" />\r\n      <created>1775736387622</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1775736387622</updated>\r\n      <workItem from=\"1775736388704\" duration=\"1719000\" />\r\n      <workItem from=\"1775824048411\" duration=\"620000\" />\r\n      <workItem from=\"1776058561340\" duration=\"3705000\" />\r\n      <workItem from=\"1776063664024\" duration=\"2618000\" />\r\n      <workItem from=\"1776084635876\" duration=\"4298000\" />\r\n      <workItem from=\"1776138787572\" duration=\"10149000\" />\r\n      <workItem from=\"1776225851123\" duration=\"458000\" />\r\n      <workItem from=\"1776226328778\" duration=\"19450000\" />\r\n      <workItem from=\"1776260159677\" duration=\"1000\" />\r\n      <workItem from=\"1776311187636\" duration=\"2176000\" />\r\n      <workItem from=\"1776341543940\" duration=\"353000\" />\r\n      <workItem from=\"1776584957093\" duration=\"4022000\" />\r\n      <workItem from=\"1776603411545\" duration=\"2297000\" />\r\n      <workItem from=\"1776648321080\" duration=\"4977000\" />\r\n      <workItem from=\"1776746664009\" duration=\"3396000\" />\r\n      <workItem from=\"1776763249443\" duration=\"810000\" />\r\n      <workItem from=\"1776831346282\" duration=\"637000\" />\r\n      <workItem from=\"1776858565651\" duration=\"707000\" />\r\n      <workItem from=\"1776933213685\" duration=\"3123000\" />\r\n      <workItem from=\"1776997735315\" duration=\"11301000\" />\r\n      <workItem from=\"1777010895453\" duration=\"635000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"OPEN_GENERIC_TABS\">\r\n      <map>\r\n        <entry key=\"1c3391f9-79df-4b7d-851b-83de3b4a63c1\" value=\"TOOL_WINDOW\" />\r\n        <entry key=\"edbaae04-bfd3-4481-9102-23637b78e551\" value=\"TOOL_WINDOW\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"1c3391f9-79df-4b7d-851b-83de3b4a63c1\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"master\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n        <entry key=\"edbaae04-bfd3-4481-9102-23637b78e551\">\r\n          <value>\r\n            <State>\r\n              <option name=\"CUSTOM_BOOLEAN_PROPERTIES\">\r\n                <map>\r\n                  <entry key=\"Show.Git.Branches\" value=\"true\" />\r\n                </map>\r\n              </option>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"HEAD\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"test'\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"test'\" />\r\n  </component>\r\n  <component name=\"github-copilot-workspace\">\r\n    <instructionFileLocations>\r\n      <option value=\".github/instructions\" />\r\n    </instructionFileLocations>\r\n    <promptFileLocations>\r\n      <option value=\".github/prompts\" />\r\n    </promptFileLocations>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 91a7eefd1d2e53f7186b8b0f08b7f77215b071af)
++++ b/.idea/workspace.xml	(date 1777015363787)
+@@ -4,9 +4,7 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="">
+-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-    </list>
++    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="1" />
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -62,6 +60,9 @@
+     &quot;accountId&quot;: &quot;fe30ed80-e148-4848-bd44-5078c4bd085b&quot;
+   }
+ }</component>
++  <component name="HighlightingSettingsPerFile">
++    <setting file="file://$PROJECT_DIR$/.idea/.gitignore" root0="SKIP_INSPECTION" />
++  </component>
+   <component name="ProblemsViewState">
+     <option name="selectedTabId" value="CurrentFile" />
+   </component>
+@@ -73,29 +74,29 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;D:/model/Real-ESRGAN-master1/options&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;项目&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
++    "RunOnceActivity.git.unshallow": "true",
++    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
++    "git-widget-placeholder": "master",
++    "junie.onboarding.icon.badge.shown": "true",
++    "last_opened_file_path": "D:/model/Real-ESRGAN-master1/options",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_package_manager_path": "npm",
++    "project.structure.last.edited": "项目",
++    "project.structure.proportion": "0.15",
++    "project.structure.side.proportion": "0.2",
++    "settings.editor.selected.configurable": "settings.sync",
++    "to.speed.mode.migration.done": "true",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+       <recent name="D:\model\Real-ESRGAN-master1\options" />
+@@ -138,57 +139,34 @@
+       <workItem from="1776933213685" duration="3123000" />
+       <workItem from="1776997735315" duration="11301000" />
+       <workItem from="1777010895453" duration="635000" />
++      <workItem from="1777014976278" duration="385000" />
++    </task>
++    <task id="LOCAL-00001" summary="1">
++      <option name="closed" value="true" />
++      <created>1777015080583</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1777015080583</updated>
+     </task>
++    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+-    <option name="OPEN_GENERIC_TABS">
+-      <map>
+-        <entry key="1c3391f9-79df-4b7d-851b-83de3b4a63c1" value="TOOL_WINDOW" />
+-        <entry key="edbaae04-bfd3-4481-9102-23637b78e551" value="TOOL_WINDOW" />
+-      </map>
+-    </option>
+     <option name="TAB_STATES">
+       <map>
+-        <entry key="1c3391f9-79df-4b7d-851b-83de3b4a63c1">
+-          <value>
+-            <State>
+-              <option name="FILTERS">
+-                <map>
+-                  <entry key="branch">
+-                    <value>
+-                      <list>
+-                        <option value="master" />
+-                      </list>
+-                    </value>
+-                  </entry>
+-                </map>
+-              </option>
+-            </State>
+-          </value>
+-        </entry>
+         <entry key="MAIN">
+           <value>
+-            <State />
+-          </value>
+-        </entry>
+-        <entry key="edbaae04-bfd3-4481-9102-23637b78e551">
+-          <value>
+             <State>
+-              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+-                <map>
+-                  <entry key="Show.Git.Branches" value="true" />
+-                </map>
+-              </option>
+               <option name="FILTERS">
+                 <map>
+                   <entry key="branch">
+                     <value>
+                       <list>
+-                        <option value="HEAD" />
++                        <option value="master" />
+                       </list>
+                     </value>
+                   </entry>
+@@ -202,7 +180,8 @@
+   </component>
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="test'" />
+-    <option name="LAST_COMMIT_MESSAGE" value="test'" />
++    <MESSAGE value="1" />
++    <option name="LAST_COMMIT_MESSAGE" value="1" />
+   </component>
+   <component name="github-copilot-workspace">
+     <instructionFileLocations>
