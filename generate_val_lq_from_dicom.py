@@ -27,11 +27,10 @@ def dcm_to_uint8(ds, wl=None, ww=None):
 
 
 def iter_dcm_files(root, recursive):
-    if recursive:
-        for p in Path(root).rglob("*.dcm"):
-            yield p
-    else:
-        for p in Path(root).glob("*.dcm"):
+    root = Path(root)
+    it = root.rglob("*") if recursive else root.glob("*")
+    for p in it:
+        if p.is_file():
             yield p
 
 
@@ -54,6 +53,11 @@ def main():
 
     count = 0
     for dcm_path in iter_dcm_files(in_root, args.recursive):
+        try:
+            ds = pydicom.dcmread(str(dcm_path), force=True)
+        except Exception:
+            continue
+
         rel = dcm_path.relative_to(in_root)
         save_rel = rel.with_suffix(".png")
 
@@ -76,6 +80,7 @@ def main():
         cv2.imwrite(str(gt_path), gt_bgr)
         cv2.imwrite(str(lq_path), lq_bgr)
         count += 1
+
 
     print(f"Done. Processed {count} DICOM files.")
 

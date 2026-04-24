@@ -41,10 +41,10 @@ def dcm_to_normalized_float32(ds, default_wl=-450.0, default_ww=1300.0):
 
 def iter_dcm_files(root, recursive):
     root = Path(root)
-    if recursive:
-        yield from root.rglob("*.dcm")
-    else:
-        yield from root.glob("*.dcm")
+    it = root.rglob("*") if recursive else root.glob("*")
+    for p in it:
+        if p.is_file():
+            yield p
 
 
 def main():
@@ -66,11 +66,36 @@ def main():
     rel_paths = []
     count = 0
     for dcm_path in iter_dcm_files(in_root, args.recursive):
+        try:
+            # 强制读取文件
+            ds = pydicom.dcmread(str(dcm_path), force=True)
+            ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+
+            # --- 新增的检查逻辑 ---
+            if not hasattr(ds, 'PixelData'):
+                print(f"⏭️ 跳过文件 {dcm_path.name}: 该文件不包含图像像素数据 (可能只是文本/报告文件)。")
+                continue
+            # --------------------
+
+            # 如果有像素数据，才进行转换
+            arr = dcm_to_normalized_float32(ds, default_wl=args.default_wl, default_ww=args.default_ww)
+
+            # 保存 NPY ... (保留你原来的保存逻辑)
+            # np.save(save_path, arr)
+            # count += 1
+
+        except Exception as e:
+            print(f"❌ 处理文件 {dcm_path.name} 时发生严重错误: {e}")
+            continue  # 遇到报错直接跳过，不要中断整个程序
         rel = dcm_path.relative_to(in_root).with_suffix(".npy")
         save_path = out_root / rel
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        ds = pydicom.dcmread(str(dcm_path))
+        # 修改后：加入 force=True
+        ds = pydicom.dcmread(str(dcm_path), force=True)
+
+        # 建议在下面补上一行，因为强制读取后有时会丢失传输语法信息：
+        ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
         arr = dcm_to_normalized_float32(ds, default_wl=args.default_wl, default_ww=args.default_ww)
         np.save(str(save_path), arr, allow_pickle=False)
 

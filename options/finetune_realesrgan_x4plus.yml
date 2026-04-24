@@ -45,7 +45,7 @@ datasets:
     type: NPYRealESRGANDataset
 
 
-    ddataroot_gt: datasets/S20-Chest/S20-Chest-npy
+    dataroot_gt: datasets/S20-Chest/S20-Chest-npy
     meta_info: datasets/S20-Chest/meta_info/meta_info_S20-Chest_npy.txt
     io_backend:
       type: disk
