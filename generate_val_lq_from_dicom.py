@@ -40,8 +40,8 @@ def main():
     parser.add_argument("--output_gt_dir", type=str, required=True)
     parser.add_argument("--output_lq_dir", type=str, required=True)
     parser.add_argument("--scale", type=int, default=4)
-    parser.add_argument("--wl", type=float, default=None, help="Window level")
-    parser.add_argument("--ww", type=float, default=None, help="Window width")
+    parser.add_argument("--wl", type=float, default=-450, help="Window level")
+    parser.add_argument("--ww", type=float, default=1300, help="Window width")
     parser.add_argument("--recursive", action="store_true")
     args = parser.parse_args()
 
