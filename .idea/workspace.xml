@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" afterDir="false" />
+    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="第一次改，但是是半成品有问题">
+      <change afterPath="$PROJECT_DIR$/realesrgan/data/paired_npy_dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_val_lq_from_dicom.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_val_lq_from_dicom.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/finetune_realesrgan_x4plus.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/finetune_realesrgan_x4plus.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/options/train_hh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hh.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/options/train_hl.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hl.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/options/train_lh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_lh.yml" afterDir="false" />
@@ -23,6 +21,9 @@
     <persistenceIdMap>
       <entry key="_D:/model/Real-ESRGAN-fp-med" value="3CnQYjakWzO4KFm1JGm2DTbQrTf" />
     </persistenceIdMap>
+  </component>
+  <component name="CopilotUserSelectedChatMode">
+    <option name="chatModeId" value="Ask" />
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
@@ -129,8 +130,17 @@
       <workItem from="1777019264708" duration="4575000" />
       <workItem from="1777035331504" duration="1184000" />
       <workItem from="1777038036383" duration="244000" />
-      <workItem from="1777192725369" duration="7037000" />
+      <workItem from="1777192725369" duration="9784000" />
     </task>
+    <task id="LOCAL-00001" summary="第一次改，但是是半成品有问题">
+      <option name="closed" value="true" />
+      <created>1777201441577</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1777201441577</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -163,6 +173,8 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
+    <MESSAGE value="第一次改，但是是半成品有问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="第一次改，但是是半成品有问题" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

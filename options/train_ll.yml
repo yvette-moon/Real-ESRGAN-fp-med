@@ -7,41 +7,17 @@ model_type: RealESRGANModel
 # dataset and data loader settings
 datasets:
   train:
-    name:  S20-Chest-NPY
-    type: NPYRealESRGANDataset
-
-
-    dataroot_gt: datasets/S20-Chest/S20-Chest
-    dataroot_lq: datasets/S20-Chest/ll
+    type: PairedNPYDataset
+    dataroot_gt: datasets/S20-Chest/gt_wavelet/ll
+    dataroot_lq: datasets/S20-Chest/lq_wavelet/ll
     meta_info: datasets/S20-Chest/meta_info/meta_ll.txt
-    io_backend:
-      type: disk
-    npy_value_mode: normalized
-    # if npy stores HU and you want online windowing, use: hu
-    default_wl: -450.0
-    default_ww: 1300.0
-
-    blur_kernel_size: 21
-    kernel_list: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
-    kernel_prob: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
-    sinc_prob: 0.1
-    blur_sigma: [0.2, 3]
-    betag_range: [0.5, 4]
-    betap_range: [1, 2]
-
-    blur_kernel_size2: 21
-    kernel_list2: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
-    kernel_prob2: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
-    sinc_prob2: 0.1
-    blur_sigma2: [0.2, 1.5]
-    betag_range2: [0.5, 4]
-    betap_range2: [1, 2]
-
-    final_sinc_prob: 0.8
-
+    scale: 4
     gt_size: 128
     use_hflip: True
     use_rot: False
+    npy_value_mode: normalized
+    default_wl: -450.0
+    default_ww: 1300.0
 
     # data loader
     use_shuffle: true
