@@ -7,6 +7,7 @@ model_type: RealESRGANModel
 # dataset and data loader settings
 datasets:
   train:
+    name: S20-Chest-LL
     type: PairedNPYDataset
     dataroot_gt: datasets/S20-Chest/gt_wavelet/ll
     dataroot_lq: datasets/S20-Chest/lq_wavelet/ll

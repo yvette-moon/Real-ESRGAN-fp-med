@@ -27,7 +27,7 @@ class PairedNPYDataset(data.Dataset):
         # meta_info required
         meta_info = opt.get("meta_info", None)
         if not meta_info:
-            raise ValueError("PairedNPYDataset requires meta_info file.")
+            raise ValueError("PairedNPYDataset requires meta_info.")
 
         self.paths = []
         with open(meta_info, "r", encoding="utf-8") as fin:

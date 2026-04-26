@@ -1,9 +1,10 @@
 import sys
 import os
+
 # 强制将项目根目录加入到 Python 搜索路径中
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import argparse
-import os
 import numpy as np
 import torch
 from torch.nn import functional as F
@@ -11,7 +12,6 @@ from tqdm import tqdm
 
 from basicsr.utils.registry import DATASET_REGISTRY
 
-# --- 完美兼容新旧版 basicsr 的 import 逻辑 ---
 try:
     from basicsr.utils.img_process_util import filter2D, USMSharp
 except ImportError:
@@ -27,14 +27,19 @@ import realesrgan.data.npy_realesrgan_dataset
 
 
 def main():
-    parser = argparse.ArgumentParser(description="离线生成 Real-ESRGAN 二阶退化 NPY 矩阵")
+    parser = argparse.ArgumentParser(description="离线生成 Real-ESRGAN 二阶退化 NPY 矩阵 (包含对齐GT保存)")
     parser.add_argument('--input_gt_dir', type=str, required=True, help='高精度 GT NPY 目录')
     parser.add_argument('--output_lq_dir', type=str, required=True, help='输出 LQ NPY 目录')
+    # 【核心新增】必须加上这个参数，用来保存被裁切后真正对齐的 GT
+    parser.add_argument('--output_gt_dir', type=str, required=True, help='输出严格对齐的 GT NPY 目录')
     parser.add_argument('--meta_info_gt', type=str, required=False, help='GT的 meta_info 文件路径')
     parser.add_argument('--scale', type=int, default=4, help='最终的下采样倍数')
     args = parser.parse_args()
 
+    # 创建 LQ 和 GT 两个输出文件夹
     os.makedirs(args.output_lq_dir, exist_ok=True)
+    os.makedirs(args.output_gt_dir, exist_ok=True)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
@@ -44,12 +49,15 @@ def main():
     else:
         usm_sharpener = lambda x: x
 
-
+    # 2. 配置退化参数字典
     opt = {
         'name': 'OfflineDegradation',
         'type': 'NPYRealESRGANDataset',
         'dataroot_gt': args.input_gt_dir,
-        'meta_info': args.meta_info_gt,  # <-- 原来是 meta_info_file
+
+        # 🚨 核心修复：这里必须叫 'meta_info'，不能带 _file
+        'meta_info': args.meta_info_gt,
+
         'io_backend': {'type': 'disk'},
 
         # 离线处理全图
@@ -104,7 +112,7 @@ def main():
 
     # 3. 初始化 Dataset
     dataset = DATASET_REGISTRY.get('NPYRealESRGANDataset')(opt)
-    print(f"Dataset 挂载成功，共检测到 {len(dataset)} 个 GT 矩阵文件。开始批量退化...")
+    print(f"Dataset 挂载成功，共检测到 {len(dataset)} 个 GT 矩阵文件。开始批量生成成对数据...")
 
     for i in tqdm(range(len(dataset))):
         data = dataset[i]
@@ -123,7 +131,7 @@ def main():
 
         # ==================== 执行高阶退化核心流水线 ====================
 
-        # 0. USM 锐化 (受 opt 里的 l1_gt_usm 控制)
+        # 0. USM 锐化
         if opt['l1_gt_usm']:
             out = usm_sharpener(gt)
         else:
@@ -133,13 +141,7 @@ def main():
         out = filter2D(out, kernel1)
 
         # 2. 第一次随机缩放
-        updown_type = np.random.choice(['up', 'down', 'keep'], p=opt['resize_prob'])
-        if updown_type == 'up':
-            scale = np.random.uniform(1, opt['resize_range'][1])
-        elif updown_type == 'down':
-            scale = np.random.uniform(opt['resize_range'][0], 1)
-        else:
-            scale = 1
+        scale = 1
         mode = np.random.choice(['area', 'bilinear', 'bicubic'])
         out = F.interpolate(out, scale_factor=scale, mode=mode)
 
@@ -154,13 +156,7 @@ def main():
             out = filter2D(out, kernel2)
 
         # 5. 第二次随机缩放
-        updown_type = np.random.choice(['up', 'down', 'keep'], p=opt['resize_prob2'])
-        if updown_type == 'up':
-            scale = np.random.uniform(1, opt['resize_range2'][1])
-        elif updown_type == 'down':
-            scale = np.random.uniform(opt['resize_range2'][0], 1)
-        else:
-            scale = 1
+        scale = 1
         mode = np.random.choice(['area', 'bilinear', 'bicubic'])
         out = F.interpolate(out, scale_factor=scale, mode=mode)
 
@@ -170,7 +166,7 @@ def main():
             noise = torch.randn_like(out) * noise_level
             out = out + noise
 
-        # 7. 最终精准下采样
+        # 7. 最终精准下采样 (在这里真正缩小 4 倍)
         target_h, target_w = ori_h // args.scale, ori_w // args.scale
         mode = np.random.choice(['area', 'bilinear', 'bicubic'])
         out = F.interpolate(out, size=(target_h, target_w), mode=mode)
@@ -179,23 +175,26 @@ def main():
         if np.random.uniform() < opt['sinc_prob']:
             out = filter2D(out, sinc_kernel)
 
-        # ================================================================
-
         # 防止像素溢出
         out = torch.clamp(out, 0.0, 1.0)
 
-        # 从 GPU 转移回 CPU 并转为 Numpy 数组
-        lq_npy = out.squeeze(0).cpu().numpy()
+        # ==================== 存盘阶段 (极度重要：成对保存) ====================
 
-        # 确保通道维度在最后 (如果数据是 [C, H, W] -> [H, W, C])
+        # 存 LQ (经过模糊、加噪、下采样的图)
+        lq_npy = out.squeeze(0).cpu().numpy()
         if lq_npy.ndim == 3:
             lq_npy = np.transpose(lq_npy, (1, 2, 0))
+        save_path_lq = os.path.join(args.output_lq_dir, base_name)
+        np.save(save_path_lq, lq_npy)
 
-        # 存盘
-        save_path = os.path.join(args.output_lq_dir, base_name)
-        np.save(save_path, lq_npy)
+        # 存 GT (从 dataloader 拿出来的，物理尺寸和裁剪位置跟 LQ 严格绑定的高清图)
+        gt_npy = gt.squeeze(0).cpu().numpy()
+        if gt_npy.ndim == 3:
+            gt_npy = np.transpose(gt_npy, (1, 2, 0))
+        save_path_gt = os.path.join(args.output_gt_dir, base_name)
+        np.save(save_path_gt, gt_npy)
 
-    print("✅ 离线退化生成完毕，所有文件已保存。")
+    print("✅ 成对离线数据生成完毕，对齐的 GT 和 LQ 已全部分别保存。")
 
 
 if __name__ == '__main__':

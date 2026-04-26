@@ -10,6 +10,7 @@ manual_seed: 0
 
 datasets:
   train:
+    name: S20-Chest-LH
     type: PairedNPYDataset
     dataroot_gt: datasets/S20-Chest/gt_wavelet/lh
     dataroot_lq: datasets/S20-Chest/lq_wavelet/lh
