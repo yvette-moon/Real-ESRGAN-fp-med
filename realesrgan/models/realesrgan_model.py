@@ -72,20 +72,24 @@ class RealESRGANModel(SRGANModel):
     def feed_data(self, data):
         """Accept data from dataloader, and then add two-order degradations to obtain LQ images.
         """
-        if self.is_train and self.opt.get('high_order_degradation', True):
-            # training data synthesis
+        # 1. 先加载 GT 和 GT_USM
+        if 'gt' in data:
             self.gt = data['gt'].to(self.device)
             self.gt_usm = self.usm_sharpener(self.gt)
 
+        # 2. 核心修改：如果开启了在线退化，且数据里确实有 kernel，才执行在线退化流程
+        if self.is_train and self.opt.get('high_order_degradation', True) and 'kernel1' in data:
+
+            # --- 以下代码保持你原本的在线退化逻辑不变 ---
             self.kernel1 = data['kernel1'].to(self.device)
             self.kernel2 = data['kernel2'].to(self.device)
             self.sinc_kernel = data['sinc_kernel'].to(self.device)
-
             ori_h, ori_w = self.gt.size()[2:4]
 
             # ----------------------- The first degradation process ----------------------- #
             # blur
             out = filter2D(self.gt_usm, self.kernel1)
+
             # random resize
             updown_type = random.choices(['up', 'down', 'keep'], self.opt['resize_prob'])[0]
             if updown_type == 'up':
@@ -96,6 +100,7 @@ class RealESRGANModel(SRGANModel):
                 scale = 1
             mode = random.choice(['area', 'bilinear', 'bicubic'])
             out = F.interpolate(out, scale_factor=scale, mode=mode)
+
             # add noise
             gray_noise_prob = self.opt['gray_noise_prob']
             if np.random.uniform() < self.opt['gaussian_noise_prob']:
@@ -166,26 +171,38 @@ class RealESRGANModel(SRGANModel):
                 mode = random.choice(['area', 'bilinear', 'bicubic'])
                 out = F.interpolate(out, size=(ori_h // self.opt['scale'], ori_w // self.opt['scale']), mode=mode)
                 out = filter2D(out, self.sinc_kernel)
-
-            # clamp and round
             self.lq = torch.clamp((out * 255.0).round(), 0, 255) / 255.
 
-            # random crop
+            # ---------------------------------------------------------
+            # 接下来是你原本代码里对 self.lq 和 self.gt 进行随机裁剪和队列更新的代码
             gt_size = self.opt['gt_size']
             (self.gt, self.gt_usm), self.lq = paired_random_crop([self.gt, self.gt_usm], self.lq, gt_size,
                                                                  self.opt['scale'])
-
-            # training pair pool
             self._dequeue_and_enqueue()
-            # sharpen self.gt again, as we have changed the self.gt with self._dequeue_and_enqueue
             self.gt_usm = self.usm_sharpener(self.gt)
-            self.lq = self.lq.contiguous()  # for the warning: grad and param do not obey the gradient layout contract
+            self.lq = self.lq.contiguous()
+
+            # 3. 离线退化模式或验证模式 (跳过在线退化，直接使用数据)
+
         else:
-            # for paired training or validation
+
+            # 🚨 必须先从 dataloader 提取已经离线处理好的 lq 和 gt
+
             self.lq = data['lq'].to(self.device)
+
             if 'gt' in data:
                 self.gt = data['gt'].to(self.device)
+
                 self.gt_usm = self.usm_sharpener(self.gt)
+
+            # 训练模式下，需要更新 EMA 队列
+
+            if self.is_train and 'gt' in data:
+                self._dequeue_and_enqueue()
+
+                self.gt_usm = self.usm_sharpener(self.gt)
+
+                self.lq = self.lq.contiguous()
 
     def nondist_validation(self, dataloader, current_iter, tb_logger, save_img):
         # do not use the synthetic process during validation
@@ -265,11 +282,12 @@ class RealESRGANModel(SRGANModel):
         l1_gt = self.gt_usm
         percep_gt = self.gt_usm
         gan_gt = self.gt_usm
-        if self.opt['l1_gt_usm'] is False:
+        # 使用 .get() 安全读取，如果 YAML 里没写，就默认用 True 或 False
+        if self.opt.get('l1_gt_usm', True) is False:
             l1_gt = self.gt
-        if self.opt['percep_gt_usm'] is False:
+        if self.opt.get('percep_gt_usm', True) is False:
             percep_gt = self.gt
-        if self.opt['gan_gt_usm'] is False:
+        if self.opt.get('gan_gt_usm', False) is False:
             gan_gt = self.gt
 
         # optimize net_g

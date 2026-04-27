@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="第二次改，可能没问题，还没跑">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realesrgan/data/npy_realesrgan_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/data/npy_realesrgan_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realesrgan/data/paired_npy_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/data/paired_npy_dataset.py" afterDir="false" />
+    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。">
+      <change beforePath="$PROJECT_DIR$/options/train_hh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hh.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/options/train_hl.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hl.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/options/train_lh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_lh.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/options/train_ll.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_ll.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/realesrgan/models/realesrgan_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/models/realesrgan_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/split_npy_to_wavelet_subbands.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/split_npy_to_wavelet_subbands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +74,9 @@
     &quot;accountId&quot;: &quot;b3c61212-8e10-4108-a7fb-f3c413f15df0&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/realesrgan/models/realesrgan_model.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -84,28 +90,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/model/Real-ESRGAN-fp-med/experiments/pretrained_models&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "D:/model/Real-ESRGAN-fp-med/experiments/pretrained_models",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\model\Real-ESRGAN-fp-med\experiments\pretrained_models" />
@@ -134,7 +140,7 @@
       <workItem from="1777035331504" duration="1184000" />
       <workItem from="1777038036383" duration="244000" />
       <workItem from="1777192725369" duration="18428000" />
-      <workItem from="1777259098030" duration="303000" />
+      <workItem from="1777259098030" duration="8933000" />
     </task>
     <task id="LOCAL-00001" summary="第一次改，但是是半成品有问题">
       <option name="closed" value="true" />
@@ -160,7 +166,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777211286711</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。">
+      <option name="closed" value="true" />
+      <created>1777259722658</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1777259722658</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,7 +209,8 @@
     </ignored-roots>
     <MESSAGE value="第一次改，但是是半成品有问题" />
     <MESSAGE value="第二次改，可能没问题，还没跑" />
-    <option name="LAST_COMMIT_MESSAGE" value="第二次改，可能没问题，还没跑" />
+    <MESSAGE value="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。" />
+    <option name="LAST_COMMIT_MESSAGE" value="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

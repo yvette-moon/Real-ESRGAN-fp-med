@@ -7,7 +7,9 @@ model_type: RealESRGANModel
 scale: 4
 num_gpu: auto
 manual_seed: 0
-
+l1_gt_usm: True
+percep_gt_usm: True
+gan_gt_usm: False
 datasets:
   train:
     name: S20-Chest-LH
@@ -37,13 +39,13 @@ datasets:
   #   dataroot_lq: path_to_lq
   #   io_backend:
   #     type: disk
-  val:
-    name: S20-val
-    type: PairedImageDataset
-    dataroot_gt: datasets/S20-Chest/val/gt
-    dataroot_lq: datasets/S20-Chest/val/lq
-    io_backend:
-      type: disk
+  #val:
+  #  name: S20-val
+  #  type: PairedImageDataset
+  #  dataroot_gt: datasets/S20-Chest/val/gt
+  #  dataroot_lq: datasets/S20-Chest/val/lq
+   # io_backend:
+   #   type: disk
 # network structures
 network_g:
   type: RRDBNet
@@ -89,7 +91,7 @@ train:
     milestones: [5000]
     gamma: 0.5
 
-  total_iter: 10000
+  total_iter: 5000
   warmup_iter: -1  # no warm up
 
   # losses
@@ -137,18 +139,18 @@ train:
 #       test_y_channel: false
 
 # logging settings
-val:
-  val_freq: 500
-  save_img: True
-  metrics:
-    psnr:
-      type: calculate_psnr
-      crop_border: 4
-      test_y_channel: false
-    ssim:
-      type: calculate_ssim
-      crop_border: 4
-      test_y_channel: false
+#val:
+ # val_freq: 500
+ # save_img: True
+  #metrics:
+  #  psnr:
+    #  type: calculate_psnr
+    #  crop_border: 4
+    #  test_y_channel: false
+    #ssim:
+    #  type: calculate_ssim
+    #  crop_border: 4
+    #  test_y_channel: false
 logger:
   print_freq: 100
   save_checkpoint_freq: !!float 5e3

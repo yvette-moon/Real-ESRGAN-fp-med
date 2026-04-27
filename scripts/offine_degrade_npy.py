@@ -47,6 +47,18 @@ def read_npy_to_tensor(path):
     return tensor
 
 
+def center_crop_to_scale_multiple(tensor, scale):
+    """将 H/W 裁剪到能整除 scale，确保 GT/LQ 严格 4 倍关系"""
+    _, _, h, w = tensor.shape
+    new_h = (h // scale) * scale
+    new_w = (w // scale) * scale
+    if new_h == h and new_w == w:
+        return tensor
+    top = (h - new_h) // 2
+    left = (w - new_w) // 2
+    return tensor[:, :, top:top + new_h, left:left + new_w]
+
+
 def generate_kernels(opt):
     """独立生成当前图片专属的退化模糊核"""
     kernel_range = [7, 9, 11, 13, 15, 17, 19, 21]
@@ -142,6 +154,9 @@ def main():
             print(f"\n⚠️ 无法读取文件 {file_name}: {e}，已跳过")
             continue
 
+        # 关键：先裁剪到可整除尺寸
+        gt = center_crop_to_scale_multiple(gt, args.scale)
+
         ori_h, ori_w = gt.shape[2], gt.shape[3]
         if ori_h == 0 or ori_w == 0:
             print(f"\n⚠️ 发现空尺寸图片 [1, 3, {ori_h}, {ori_w}] -> {file_name}，已跳过")
@@ -169,7 +184,7 @@ def main():
             noise_level = np.random.uniform(opt['noise_range2'][0], opt['noise_range2'][1]) / 255.0
             out = out + torch.randn_like(out) * noise_level
 
-        # 精准下采样 (按你要求的 4 倍缩小)
+        # 精准下采样 (严格 4 倍)
         target_h, target_w = ori_h // args.scale, ori_w // args.scale
         mode = random.choice(['area', 'bilinear', 'bicubic'])
         out = F.interpolate(out, size=(target_h, target_w), mode=mode)
@@ -191,7 +206,7 @@ def main():
         gt_npy = np.transpose(gt_npy, (1, 2, 0)) if gt_npy.ndim == 3 else gt_npy
         np.save(os.path.join(args.output_gt_dir, file_name), gt_npy)
 
-    print("✅ 成对离线数据生成完毕，对齐的 GT 和 LQ 已全部分别保存。")
+    print("✅ 成对离线��据生成完毕，对齐的 GT 和 LQ 已全部分别保存。")
 
 
 if __name__ == '__main__':

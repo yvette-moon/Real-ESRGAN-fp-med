@@ -3,14 +3,21 @@ from pathlib import Path
 import numpy as np
 
 
+def center_crop_even(x):
+    """小波分解前强制裁到偶数尺寸，避免奇数陷阱"""
+    h, w = x.shape
+    new_h = h - (h % 2)
+    new_w = w - (w % 2)
+    if new_h == h and new_w == w:
+        return x
+    top = (h - new_h) // 2
+    left = (w - new_w) // 2
+    return x[top:top + new_h, left:left + new_w]
+
+
 def haar_dwt2(x):
     """x: HxW float32 in [0,1]"""
-    h, w = x.shape
-    pad_h = h % 2
-    pad_w = w % 2
-    if pad_h or pad_w:
-        x = np.pad(x, ((0, pad_h), (0, pad_w)), mode="reflect")
-
+    x = center_crop_even(x)  # ✅ 防止奇数尺寸破坏配对
     a = x[0::2, 0::2]
     b = x[0::2, 1::2]
     c = x[1::2, 0::2]
