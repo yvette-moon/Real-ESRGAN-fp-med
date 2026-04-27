@@ -1,16 +1,18 @@
 import sys
 import os
-
-# 强制将项目根目录加入到 Python 搜索路径中
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import argparse
 import numpy as np
 import torch
 from torch.nn import functional as F
 from tqdm import tqdm
+import random
+import math
 
-from basicsr.utils.registry import DATASET_REGISTRY
+# 强制将项目根目录加入到 Python 搜索路径中
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 导入基础的核生成工具
+from basicsr.data.degradations import circular_lowpass_kernel, random_mixed_kernels
 
 try:
     from basicsr.utils.img_process_util import filter2D, USMSharp
@@ -22,177 +24,172 @@ except ImportError:
     except ImportError:
         USMSharp = None
 
-# 必须显式导入这个文件，触发它的 register() 装饰器！
-import realesrgan.data.npy_realesrgan_dataset
+
+def read_npy_to_tensor(path):
+    """直接读取NPY文件并转为 [1, C, H, W] 的 Tensor"""
+    arr = np.load(path).astype(np.float32)
+
+    # 兼容处理各种维度 (H*W, H*W*C, C*H*W)
+    if arr.ndim == 2:
+        arr = np.stack([arr, arr, arr], axis=-1)
+    elif arr.ndim == 3 and arr.shape[0] in [1, 3]:
+        arr = np.transpose(arr, (1, 2, 0))  # CHW 转为 HWC
+
+    if arr.shape[-1] == 1:
+        arr = np.repeat(arr, 3, axis=-1)
+
+    # 截断到 0-1 范围，防止异常值
+    arr = np.clip(arr, 0.0, 1.0)
+
+    # HWC 转换回 CHW 供 PyTorch 使用
+    arr = np.transpose(arr, (2, 0, 1))
+    tensor = torch.from_numpy(arr).unsqueeze(0)  # 增加 Batch 维度: [1, 3, H, W]
+    return tensor
+
+
+def generate_kernels(opt):
+    """独立生成当前图片专属的退化模糊核"""
+    kernel_range = [7, 9, 11, 13, 15, 17, 19, 21]
+
+    # 1. 第一次模糊核
+    kernel_size1 = random.choice(kernel_range)
+    if np.random.uniform() < opt['sinc_prob']:
+        omega_c = np.random.uniform(np.pi / 3, np.pi) if kernel_size1 < 13 else np.random.uniform(np.pi / 5, np.pi)
+        kernel1 = circular_lowpass_kernel(omega_c, kernel_size1, pad_to=False)
+    else:
+        kernel1 = random_mixed_kernels(
+            opt['kernel_list'], opt['kernel_prob'], kernel_size1,
+            opt['blur_sigma'], opt['blur_sigma'], [-math.pi, math.pi],
+            opt['betag_range'], opt['betap_range'], noise_range=None)
+    pad_size1 = (21 - kernel_size1) // 2
+    kernel1 = np.pad(kernel1, ((pad_size1, pad_size1), (pad_size1, pad_size1)))
+
+    # 2. 第二次模糊核
+    kernel_size2 = random.choice(kernel_range)
+    if np.random.uniform() < opt['sinc_prob2']:
+        omega_c = np.random.uniform(np.pi / 3, np.pi) if kernel_size2 < 13 else np.random.uniform(np.pi / 5, np.pi)
+        kernel2 = circular_lowpass_kernel(omega_c, kernel_size2, pad_to=False)
+    else:
+        kernel2 = random_mixed_kernels(
+            opt['kernel_list2'], opt['kernel_prob2'], kernel_size2,
+            opt['blur_sigma2'], opt['blur_sigma2'], [-math.pi, math.pi],
+            opt['betag_range2'], opt['betap_range2'], noise_range=None)
+    pad_size2 = (21 - kernel_size2) // 2
+    kernel2 = np.pad(kernel2, ((pad_size2, pad_size2), (pad_size2, pad_size2)))
+
+    # 3. 最后的 Sinc 核
+    if np.random.uniform() < opt['final_sinc_prob']:
+        kernel_size3 = random.choice(kernel_range)
+        omega_c = np.random.uniform(np.pi / 3, np.pi)
+        sinc_kernel = circular_lowpass_kernel(omega_c, kernel_size3, pad_to=21)
+    else:
+        sinc_kernel = np.zeros((21, 21), dtype=np.float32)
+        sinc_kernel[10, 10] = 1.0
+
+    return torch.FloatTensor(kernel1), torch.FloatTensor(kernel2), torch.FloatTensor(sinc_kernel)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="离线生成 Real-ESRGAN 二阶退化 NPY 矩阵 (包含对齐GT保存)")
+    parser = argparse.ArgumentParser(description="直读直接退化 NPY 矩阵 (告别 Dataset 报错)")
     parser.add_argument('--input_gt_dir', type=str, required=True, help='高精度 GT NPY 目录')
     parser.add_argument('--output_lq_dir', type=str, required=True, help='输出 LQ NPY 目录')
-    # 【核心新增】必须加上这个参数，用来保存被裁切后真正对齐的 GT
     parser.add_argument('--output_gt_dir', type=str, required=True, help='输出严格对齐的 GT NPY 目录')
-    parser.add_argument('--meta_info_gt', type=str, required=False, help='GT的 meta_info 文件路径')
+    # 保留这个参数以防你旧命令报错，但代码不再需要它了
+    parser.add_argument('--meta_info_gt', type=str, required=False, help='(不再需要)')
     parser.add_argument('--scale', type=int, default=4, help='最终的下采样倍数')
     args = parser.parse_args()
 
-    # 创建 LQ 和 GT 两个输出文件夹
+    # 创建输出文件夹
     os.makedirs(args.output_lq_dir, exist_ok=True)
     os.makedirs(args.output_gt_dir, exist_ok=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
-    # 1. 准备 USM 锐化器 (适配你的 import 逻辑)
+    # 准备 USM 锐化器
     if USMSharp is not None:
         usm_sharpener = USMSharp().to(device)
     else:
         usm_sharpener = lambda x: x
 
-    # 2. 配置退化参数字典
+    # 退化参数配置
     opt = {
-        'name': 'OfflineDegradation',
-        'type': 'NPYRealESRGANDataset',
-        'dataroot_gt': args.input_gt_dir,
-
-        # 🚨 核心修复：这里必须叫 'meta_info'，不能带 _file
-        'meta_info': args.meta_info_gt,
-
-        'io_backend': {'type': 'disk'},
-
-        # 离线处理全图
-        'gt_size': 0,
-        'use_hflip': False, 'use_rot': False,
-
-        # USM 锐化开关
         'l1_gt_usm': True,
-        'percep_gt_usm': True,
-        'gan_gt_usm': False,
-
-        # 模糊核基础参数
-        'blur_kernel_size': 21,
         'kernel_list': ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso'],
         'kernel_prob': [0.45, 0.25, 0.12, 0.03, 0.12, 0.03],
-        'sinc_prob': 0.1,
-        'blur_sigma': [0.2, 3],
-        'betag_range': [0.5, 4],
-        'betap_range': [1, 2],
+        'sinc_prob': 0.1, 'blur_sigma': [0.2, 3], 'betag_range': [0.5, 4], 'betap_range': [1, 2],
 
-        # 第二阶段核参数（补齐）
-        'blur_kernel_size2': 21,
         'kernel_list2': ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso'],
         'kernel_prob2': [0.45, 0.25, 0.12, 0.03, 0.12, 0.03],
-        'sinc_prob2': 0.1,
-        'blur_sigma2': [0.2, 1.5],
-        'betag_range2': [0.5, 4],
-        'betap_range2': [1, 2],
+        'sinc_prob2': 0.1, 'blur_sigma2': [0.2, 1.5], 'betag_range2': [0.5, 4], 'betap_range2': [1, 2],
         'final_sinc_prob': 0.8,
 
-        # 第一阶退化
-        'resize_prob': [0.2, 0.7, 0.1],
-        'resize_range': [0.15, 1.5],
-        'gaussian_noise_prob': 0.5,
-        'noise_range': [1, 30],
-        'poisson_scale_range': [0.05, 3],
-        'gray_noise_prob': 1,
-        'jpeg_range': [80, 100],
-
-        # 第二阶退化
-        'second_blur_prob': 0.8,
-        'resize_prob2': [0.3, 0.4, 0.3],
-        'resize_range2': [0.3, 1.2],
-        'gaussian_noise_prob2': 0.5,
-        'noise_range2': [1, 25],
-        'poisson_scale_range2': [0.05, 2.5],
-        'gray_noise_prob2': 1,
-        'jpeg_range2': [80, 100],
-
-        'scale': args.scale
+        'gaussian_noise_prob': 0.5, 'noise_range': [1, 30],
+        'gaussian_noise_prob2': 0.5, 'noise_range2': [1, 25],
     }
 
-    # 3. 初始化 Dataset
-    dataset = DATASET_REGISTRY.get('NPYRealESRGANDataset')(opt)
-    print(f"Dataset 挂载成功，共检测到 {len(dataset)} 个 GT 矩阵文件。开始批量生成成对数据...")
+    # 获取所有 NPY 文件列表
+    file_list = [f for f in os.listdir(args.input_gt_dir) if f.endswith('.npy')]
+    print(f"✅ 成功找到 {len(file_list)} 个 NPY 文件。开始直接退化...")
 
-    for i in tqdm(range(len(dataset))):
-        data = dataset[i]
+    for file_name in tqdm(file_list):
+        gt_path = os.path.join(args.input_gt_dir, file_name)
 
-        # 提取原文件名
-        gt_path = data['gt_path']
-        base_name = os.path.basename(gt_path)
+        # 1. 直接读取数据，自带防崩保护
+        try:
+            gt = read_npy_to_tensor(gt_path).to(device)
+        except Exception as e:
+            print(f"\n⚠️ 无法读取文件 {file_name}: {e}，已跳过")
+            continue
 
-        # 转为 Tensor，增加 Batch 维度，推入 GPU
-        gt = data['gt'].unsqueeze(0).to(device)
-        kernel1 = data['kernel1'].unsqueeze(0).to(device)
-        kernel2 = data['kernel2'].unsqueeze(0).to(device)
-        sinc_kernel = data['sinc_kernel'].unsqueeze(0).to(device)
+        ori_h, ori_w = gt.shape[2], gt.shape[3]
+        if ori_h == 0 or ori_w == 0:
+            print(f"\n⚠️ 发现空尺寸图片 [1, 3, {ori_h}, {ori_w}] -> {file_name}，已跳过")
+            continue
 
-        ori_h, ori_w = gt.size()[2:4]
+        # 2. 生成随机模糊核
+        k1, k2, sinc_k = generate_kernels(opt)
+        kernel1 = k1.unsqueeze(0).to(device)
+        kernel2 = k2.unsqueeze(0).to(device)
+        sinc_kernel = sinc_k.unsqueeze(0).to(device)
 
-        # ==================== 执行高阶退化核心流水线 ====================
+        # ==================== 执行高阶退化流水线 ====================
+        out = usm_sharpener(gt) if opt['l1_gt_usm'] else gt
 
-        # 0. USM 锐化
-        if opt['l1_gt_usm']:
-            out = usm_sharpener(gt)
-        else:
-            out = gt
-
-        # 1. 第一次模糊
+        # 第一次模糊与加噪 (去掉了中间无关的缩放)
         out = filter2D(out, kernel1)
-
-        # 2. 第一次随机缩放
-        scale = 1
-        mode = np.random.choice(['area', 'bilinear', 'bicubic'])
-        out = F.interpolate(out, scale_factor=scale, mode=mode)
-
-        # 3. 第一次加噪
         if np.random.uniform() < opt['gaussian_noise_prob']:
             noise_level = np.random.uniform(opt['noise_range'][0], opt['noise_range'][1]) / 255.0
-            noise = torch.randn_like(out) * noise_level
-            out = out + noise
+            out = out + torch.randn_like(out) * noise_level
 
-        # 4. 第二次模糊
-        if np.random.uniform() < opt['second_blur_prob']:
+        # 第二次模糊与加噪
+        if np.random.uniform() < 0.8:  # second_blur_prob
             out = filter2D(out, kernel2)
-
-        # 5. 第二次随机缩放
-        scale = 1
-        mode = np.random.choice(['area', 'bilinear', 'bicubic'])
-        out = F.interpolate(out, scale_factor=scale, mode=mode)
-
-        # 6. 第二次加噪
         if np.random.uniform() < opt['gaussian_noise_prob2']:
             noise_level = np.random.uniform(opt['noise_range2'][0], opt['noise_range2'][1]) / 255.0
-            noise = torch.randn_like(out) * noise_level
-            out = out + noise
+            out = out + torch.randn_like(out) * noise_level
 
-        # 7. 最终精准下采样 (在这里真正缩小 4 倍)
+        # 精准下采样 (按你要求的 4 倍缩小)
         target_h, target_w = ori_h // args.scale, ori_w // args.scale
-        mode = np.random.choice(['area', 'bilinear', 'bicubic'])
+        mode = random.choice(['area', 'bilinear', 'bicubic'])
         out = F.interpolate(out, size=(target_h, target_w), mode=mode)
 
-        # 8. Sinc 滤波模拟振铃效应
+        # Sinc 滤波
         if np.random.uniform() < opt['sinc_prob']:
             out = filter2D(out, sinc_kernel)
 
-        # 防止像素溢出
         out = torch.clamp(out, 0.0, 1.0)
 
-        # ==================== 存盘阶段 (极度重要：成对保存) ====================
-
-        # 存 LQ (经过模糊、加噪、下采样的图)
+        # ==================== 存盘 ====================
+        # 存 LQ
         lq_npy = out.squeeze(0).cpu().numpy()
-        if lq_npy.ndim == 3:
-            lq_npy = np.transpose(lq_npy, (1, 2, 0))
-        save_path_lq = os.path.join(args.output_lq_dir, base_name)
-        np.save(save_path_lq, lq_npy)
+        lq_npy = np.transpose(lq_npy, (1, 2, 0)) if lq_npy.ndim == 3 else lq_npy
+        np.save(os.path.join(args.output_lq_dir, file_name), lq_npy)
 
-        # 存 GT (从 dataloader 拿出来的，物理尺寸和裁剪位置跟 LQ 严格绑定的高清图)
+        # 存对齐的 GT
         gt_npy = gt.squeeze(0).cpu().numpy()
-        if gt_npy.ndim == 3:
-            gt_npy = np.transpose(gt_npy, (1, 2, 0))
-        save_path_gt = os.path.join(args.output_gt_dir, base_name)
-        np.save(save_path_gt, gt_npy)
+        gt_npy = np.transpose(gt_npy, (1, 2, 0)) if gt_npy.ndim == 3 else gt_npy
+        np.save(os.path.join(args.output_gt_dir, file_name), gt_npy)
 
     print("✅ 成对离线数据生成完毕，对齐的 GT 和 LQ 已全部分别保存。")
 

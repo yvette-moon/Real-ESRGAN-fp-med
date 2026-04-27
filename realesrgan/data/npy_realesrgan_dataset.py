@@ -96,7 +96,21 @@ class NPYRealESRGANDataset(data.Dataset):
 
         img_gt = augment(img_gt, self.opt["use_hflip"], self.opt["use_rot"])
         h, w = img_gt.shape[:2]
-        crop_pad_size = 400
+        # 让它读取配置文件，离线生成时我们配的是 gt_size: 0，就不会裁剪了
+        crop_pad_size = self.opt.get("gt_size", 0)
+
+        # 将后面的判断用 if crop_pad_size > 0 包裹起来
+        if crop_pad_size > 0:
+            if h < crop_pad_size or w < crop_pad_size:
+                pad_h = max(0, crop_pad_size - h)
+                pad_w = max(0, crop_pad_size - w)
+                img_gt = cv2.copyMakeBorder(img_gt, 0, pad_h, 0, pad_w, cv2.BORDER_REFLECT_101)
+
+            if img_gt.shape[0] > crop_pad_size or img_gt.shape[1] > crop_pad_size:
+                h, w = img_gt.shape[:2]
+                top = random.randint(0, h - crop_pad_size)
+                left = random.randint(0, w - crop_pad_size)
+                img_gt = img_gt[top:top + crop_pad_size, left:left + crop_pad_size, ...]
 
         if h < crop_pad_size or w < crop_pad_size:
             pad_h = max(0, crop_pad_size - h)

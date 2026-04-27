@@ -91,9 +91,9 @@ class PairedNPYDataset(data.Dataset):
         img_gt = self._read_npy(gt_path)
         img_lq = self._read_npy(lq_path)
 
-        if img_gt.shape[:2] != img_lq.shape[:2]:
-            raise ValueError(f"GT/LQ shape mismatch: {img_gt.shape} vs {img_lq.shape} for {gt_path}")
-
+        scale = self.opt.get("scale", 4)
+        if img_gt.shape[0] != img_lq.shape[0] * scale or img_gt.shape[1] != img_lq.shape[1] * scale:
+            raise ValueError(f"GT/LQ shape mismatch: GT {img_gt.shape} is not {scale}x of LQ {img_lq.shape} for {gt_path}")
         if self.opt.get("phase", "train") == "train":
             gt_size = self.opt["gt_size"]
             scale = self.opt["scale"]

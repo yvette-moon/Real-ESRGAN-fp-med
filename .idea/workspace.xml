@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="第二次改，可能没问题，还没跑">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/finetune_realesrgan_x4plus.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/finetune_realesrgan_x4plus.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_hh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hh.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_hl.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hl.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_lh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_lh.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_ll.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_ll.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/realesrgan/data/npy_realesrgan_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/data/npy_realesrgan_dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/realesrgan/data/paired_npy_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/data/paired_npy_dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" afterDir="false" />
     </list>
@@ -29,8 +25,8 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
-      <entry key="chat-panel" value="GPT-5.2-Codex" />
-      <entry key="agent-panel" value="GPT-5.2-Codex" />
+      <entry key="chat-panel" value="GPT-5.3-Codex" />
+      <entry key="agent-panel" value="GPT-5.3-Codex" />
     </selectedModels>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -88,28 +84,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "D:/model/Real-ESRGAN-fp-med/experiments/pretrained_models",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/model/Real-ESRGAN-fp-med/experiments/pretrained_models&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\model\Real-ESRGAN-fp-med\experiments\pretrained_models" />
@@ -137,7 +133,8 @@
       <workItem from="1777019264708" duration="4575000" />
       <workItem from="1777035331504" duration="1184000" />
       <workItem from="1777038036383" duration="244000" />
-      <workItem from="1777192725369" duration="16808000" />
+      <workItem from="1777192725369" duration="18428000" />
+      <workItem from="1777259098030" duration="303000" />
     </task>
     <task id="LOCAL-00001" summary="第一次改，但是是半成品有问题">
       <option name="closed" value="true" />
@@ -155,7 +152,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777204087769</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="第二次改，可能没问题，还没跑">
+      <option name="closed" value="true" />
+      <created>1777211286711</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1777211286711</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
