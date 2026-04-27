@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。">
+    <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="数据集问题解决了&#10;&#10;原本有问题是小波变换对于奇数图幅会padding，数据集现在是读取原图片统一裁剪尺寸，之后四倍放缩统一放到一个偶数图幅上，之后再做小波变化就没事了。&#10;&#10;之后是改train代码，不再加载退化，还有一些因为自己乱删代码导致的逻辑错误。&#10;&#10;现在已经在跑四个gan了，今天应该能一口气跑完五个，至于能不能做推理，等跑完再说">
       <change beforePath="$PROJECT_DIR$/options/train_hh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hh.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/options/train_hl.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_hl.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_lh.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_lh.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/options/train_ll.yml" beforeDir="false" afterPath="$PROJECT_DIR$/options/train_ll.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realesrgan/models/realesrgan_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/models/realesrgan_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/offine_degrade_npy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/split_npy_to_wavelet_subbands.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/split_npy_to_wavelet_subbands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +135,7 @@
       <workItem from="1777035331504" duration="1184000" />
       <workItem from="1777038036383" duration="244000" />
       <workItem from="1777192725369" duration="18428000" />
-      <workItem from="1777259098030" duration="8933000" />
+      <workItem from="1777259098030" duration="10178000" />
     </task>
     <task id="LOCAL-00001" summary="第一次改，但是是半成品有问题">
       <option name="closed" value="true" />
@@ -174,7 +169,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777259722658</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="数据集问题解决了&#10;&#10;原本有问题是小波变换对于奇数图幅会padding，数据集现在是读取原图片统一裁剪尺寸，之后四倍放缩统一放到一个偶数图幅上，之后再做小波变化就没事了。&#10;&#10;之后是改train代码，不再加载退化，还有一些因为自己乱删代码导致的逻辑错误。&#10;&#10;现在已经在跑四个gan了，今天应该能一口气跑完五个，至于能不能做推理，等跑完再说">
+      <option name="closed" value="true" />
+      <created>1777269732140</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1777269732140</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -210,7 +213,8 @@
     <MESSAGE value="第一次改，但是是半成品有问题" />
     <MESSAGE value="第二次改，可能没问题，还没跑" />
     <MESSAGE value="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。" />
-    <option name="LAST_COMMIT_MESSAGE" value="这次的是一定有问题&#10;代码在数据配对逻辑上存在三个“致命伤”，导致 GT 和 LQ 永远无法数学对齐：&#10;&#10;1. **随机裁剪破坏了配对**：原来的 `NPYRealESRGANDataset` 在读取数据时，会根据 `crop_pad_size = 400` 随机裁剪。这意味着 LQ 是基于裁剪后的局部生成的，而 GT 如果依然使用原始全图，它们在物理空间上就是错位的。&#10;2. **尺寸校验逻辑僵化**：`realesrgan/data/paired_npy_dataset.py` 中的校验逻辑强制要求 `img_gt.shape == img_lq.shape`。对于超分辨率（SR）任务，GT 必然是 LQ 的 `scale` 倍，这一行代码直接导致了训练前置报错。&#10;3. **小波分解的“奇数陷阱”**：小波分解脚本在处理非偶数尺寸图片时会进行 `np.pad` 补边，且 LQ 和 GT 独立补边。这就导致原本 4 倍的关系在经过小波分解后，变成了不可控的随机比例，彻底破坏了 `Scale = 4` 的数学约束。" />
+    <MESSAGE value="数据集问题解决了&#10;&#10;原本有问题是小波变换对于奇数图幅会padding，数据集现在是读取原图片统一裁剪尺寸，之后四倍放缩统一放到一个偶数图幅上，之后再做小波变化就没事了。&#10;&#10;之后是改train代码，不再加载退化，还有一些因为自己乱删代码导致的逻辑错误。&#10;&#10;现在已经在跑四个gan了，今天应该能一口气跑完五个，至于能不能做推理，等跑完再说" />
+    <option name="LAST_COMMIT_MESSAGE" value="数据集问题解决了&#10;&#10;原本有问题是小波变换对于奇数图幅会padding，数据集现在是读取原图片统一裁剪尺寸，之后四倍放缩统一放到一个偶数图幅上，之后再做小波变化就没事了。&#10;&#10;之后是改train代码，不再加载退化，还有一些因为自己乱删代码导致的逻辑错误。&#10;&#10;现在已经在跑四个gan了，今天应该能一口气跑完五个，至于能不能做推理，等跑完再说" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

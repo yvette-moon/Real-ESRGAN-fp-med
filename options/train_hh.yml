@@ -40,13 +40,13 @@ datasets:
   #   dataroot_lq: path_to_lq
   #   io_backend:
   #     type: disk
-  val:
-    name: S20-val
-    type: PairedImageDataset
-    dataroot_gt: datasets/S20-Chest/val/gt
-    dataroot_lq: datasets/S20-Chest/val/lq
-    io_backend:
-      type: disk
+#  val:
+   # name: S20-val
+  #  type: PairedImageDataset
+    #dataroot_gt: datasets/S20-Chest/val/gt
+   # dataroot_lq: datasets/S20-Chest/val/lq
+   # io_backend:
+    #  type: disk
 # network structures
 network_g:
   type: RRDBNet
