@@ -136,12 +136,28 @@ def main():
         imgname, extension = os.path.splitext(os.path.basename(path))
         print('Testing', idx, imgname)
 
-        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        if len(img.shape) == 3 and img.shape[2] == 4:
-            img_mode = 'RGBA'
-        else:
-            img_mode = None
+        # 1. 初始化变量，防止 NameError
+        img_mode = None
 
+        # 2. 读取逻辑：支持 .npy 和普通图片
+        if path.endswith('.npy'):
+            # 读取 npy 并归一化到 0-255 的 uint8 格式供模型推理
+            img_npy = np.load(path).astype(np.float32)
+            img_npy = np.clip(img_npy, 0, 1)
+            img = (img_npy * 255.0).round().astype(np.uint8)
+            # 如果是单通道，转为 3 通道 BGR 兼容模型
+            if img.ndim == 2:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        else:
+            img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+            if img is not None and len(img.shape) == 3 and img.shape[2] == 4:
+                img_mode = 'RGBA'
+
+        if img is None:
+            print(f"Warning: Could not read {path}")
+            continue
+
+        # 3. 模型推理
         try:
             if args.face_enhance:
                 _, _, output = face_enhancer.enhance(img, has_aligned=False, only_center_face=False, paste_back=True)
@@ -151,17 +167,28 @@ def main():
             print('Error', error)
             print('If you encounter CUDA out of memory, try to set --tile with a smaller number.')
         else:
+            # 4. 保存逻辑：支持根据参数保存为 .npy
             if args.ext == 'auto':
                 extension = extension[1:]
             else:
                 extension = args.ext
-            if img_mode == 'RGBA':  # RGBA images should be saved in png format
+
+            if img_mode == 'RGBA':  # RGBA 格式处理
                 extension = 'png'
-            if args.suffix == '':
-                save_path = os.path.join(args.output, f'{imgname}.{extension}')
+
+            if args.ext == 'npy':
+                save_path = os.path.join(args.output, f'{imgname}.npy')
+                # 将模型输出的 uint8 [0,255] 转回 float32 [0,1]
+                if output.ndim == 3:
+                    output = output[:, :, 0]  # 取单通道
+                save_data = output.astype(np.float32) / 255.0
+                np.save(save_path, save_data)
             else:
-                save_path = os.path.join(args.output, f'{imgname}_{args.suffix}.{extension}')
-            cv2.imwrite(save_path, output)
+                if args.suffix == '':
+                    save_path = os.path.join(args.output, f'{imgname}.{extension}')
+                else:
+                    save_path = os.path.join(args.output, f'{imgname}_{args.suffix}.{extension}')
+                cv2.imwrite(save_path, output)
 
 
 if __name__ == '__main__':

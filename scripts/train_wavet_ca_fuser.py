@@ -20,13 +20,8 @@ def load_npy_float(path):
     return torch.from_numpy(arr).unsqueeze(0)  # [1,H,W]
 
 
-
 class WaveletFusionDataset(Dataset):
-    """
-    Assume same filename exists in:
-      ll_dir, lh_dir, hl_dir, hh_dir, gt_dir
-    """
-    def __init__(self, ll_dir, lh_dir, hl_dir, hh_dir, gt_dir, ext="npy"):
+    def __init__(self, ll_dir, lh_dir, hl_dir, hh_dir, gt_dir, ext="npy", crop_size=256):
         super().__init__()
         self.ll_paths = sorted(glob(os.path.join(ll_dir, f"*.{ext}")))
         self.lh_dir = lh_dir
@@ -34,6 +29,7 @@ class WaveletFusionDataset(Dataset):
         self.hh_dir = hh_dir
         self.gt_dir = gt_dir
         self.names = [os.path.basename(p) for p in self.ll_paths]
+        self.crop_size = crop_size  # 子带的裁剪尺寸，如 256
 
     def __len__(self):
         return len(self.names)
@@ -45,11 +41,30 @@ class WaveletFusionDataset(Dataset):
         hl = load_npy_float(os.path.join(self.hl_dir, n))
         hh = load_npy_float(os.path.join(self.hh_dir, n))
         gt = load_npy_float(os.path.join(self.gt_dir, n))
-        x = torch.cat([ll, lh, hl, hh], dim=0)  # [4,H,W]
+
+        x = torch.cat([ll, lh, hl, hh], dim=0)  # [4, H, W]
+
+        # --- 同步裁剪逻辑 ---
+        c, h, w = x.shape
+        th, tw = self.crop_size, self.crop_size
+
+        if h < th or w < tw:
+            # 如果图片比裁剪尺寸小，先插值放大到 crop_size
+            x = F.interpolate(x.unsqueeze(0), size=(th, tw), mode='bilinear').squeeze(0)
+            gt = F.interpolate(gt.unsqueeze(0), size=(th * 2, tw * 2), mode='bilinear').squeeze(0)
+        else:
+            # 随机选择裁剪起始点
+            i = torch.randint(0, h - th + 1, (1,)).item()
+            j = torch.randint(0, w - tw + 1, (1,)).item()
+
+            x = x[:, i:i + th, j:j + tw]
+            # GT 对应的裁剪位置必须是子带的 2 倍（对应 iDWT 逻辑）
+            gt = gt[:, i * 2:(i + th) * 2, j * 2:(j + tw) * 2]
+
         return x, gt, n
 
-
 def main():
+    parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("--ll_dir", required=True)
     parser.add_argument("--lh_dir", required=True)
@@ -62,7 +77,15 @@ def main():
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--crop_size", type=int, default=256, help="Crop size for subbands")  # 新增
     args = parser.parse_args()
+
+    # 修改 Dataset 的初始化，传入 crop_size
+    ds = WaveletFusionDataset(
+        args.ll_dir, args.lh_dir, args.hl_dir, args.hh_dir, args.gt_dir,
+        ext=args.ext, crop_size=args.crop_size
+    )
+
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     ds = WaveletFusionDataset(args.ll_dir, args.lh_dir, args.hl_dir, args.hh_dir, args.gt_dir, args.ext)
