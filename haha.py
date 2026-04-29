@@ -12,9 +12,9 @@ from skimage.metrics import structural_similarity
 
 def main():
     parser = argparse.ArgumentParser(description='计算 SR 图像的 MSE, PSNR, SSIM 和 LPIPS')
-    parser.add_argument('--folder_gt', type=str, required=True, help='Ground Truth (真实高清原图) 文件夹路径')
-    parser.add_argument('--folder_gen', type=str, required=True, help='生成的超分图片 文件夹路径 (如 results)')
-    parser.add_argument('--suffix', type=str, default='_out',
+    parser.add_argument('--folder_gt', type=str, required=True, default='results_vis3',help='results_vis3')
+    parser.add_argument('--folder_gen', type=str, required=True,default='results_vis2', help='results_vis2')
+    parser.add_argument('--suffix', type=str, default='',
                         help='生成图片相对于GT的后缀，默认是 _out (例如原图01.png, 生成图01_out.png)')
     args = parser.parse_args()
 
@@ -40,7 +40,7 @@ def main():
         name, ext = os.path.splitext(basename)
 
         # 寻找对应的生成图片
-        gen_path = os.path.join(args.folder_gen, f"{name}{args.suffix}.jpg")
+        gen_path = os.path.join(args.folder_gen, f"{name}{args.suffix}.png")
 
         if not os.path.exists(gen_path):
             print(f"Warning: 找不到对应的生成图片 {gen_path}，已跳过。")

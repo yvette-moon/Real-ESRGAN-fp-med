@@ -101,17 +101,23 @@ def main():
         lh = enhance_band(up_lh, read_npy_gray(lh_path), args.outscale)
         hl = enhance_band(up_hl, read_npy_gray(hl_path), args.outscale)
         hh = enhance_band(up_hh, read_npy_gray(hh_path), args.outscale)
-
+        assert ll.shape == lh.shape == hl.shape == hh.shape, \
+            f"Shape mismatch: {ll.shape}, {lh.shape}, {hl.shape}, {hh.shape}"
+        assert ll.shape[0] % 2 == 0 and ll.shape[1] % 2 == 0, \
+            f"Subbands must have even dimensions: {ll.shape}"
         x = np.stack([ll, lh, hl, hh], axis=0)  # [4,H,W]
         x = torch.from_numpy(x).unsqueeze(0).to(device)  # [1,4,H,W]
 
         with torch.no_grad():
             y, _ = fuser(x)
-            ll_t, lh_t, hl_t, hh_t = torch.chunk(y, 4, dim=1)
+
+
+            #
+            y = torch.clamp(y, 0.0, 1.0)
 
             # [0,1] 子带 -> 原始小波系数域
+            ll_t, lh_t, hl_t, hh_t = torch.chunk(y, 4, dim=1)  # ✅ 再切分
             ll_t, lh_t, hl_t, hh_t = denorm_subbands(ll_t, lh_t, hl_t, hh_t)
-
             recon = haar_idwt2_torch(ll_t, lh_t, hl_t, hh_t)
             recon = torch.clamp(recon, 0.0, 1.0)
 

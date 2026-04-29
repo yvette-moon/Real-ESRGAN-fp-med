@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="95a3f978-d8a3-48ac-9f22-ac36dda7e592" name="更改" comment="数据集问题解决了&#10;&#10;原本有问题是小波变换对于奇数图幅会padding，数据集现在是读取原图片统一裁剪尺寸，之后四倍放缩统一放到一个偶数图幅上，之后再做小波变化就没事了。&#10;&#10;之后是改train代码，不再加载退化，还有一些因为自己乱删代码导致的逻辑错误。&#10;&#10;现在已经在跑四个gan了，今天应该能一口气跑完五个，至于能不能做推理，等跑完再说">
-      <change afterPath="$PROJECT_DIR$/npy_to_npg.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inference_realesrgan.py" beforeDir="false" afterPath="$PROJECT_DIR$/inference_realesrgan.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realesrgan/version.py" beforeDir="false" afterPath="$PROJECT_DIR$/realesrgan/version.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/haha.py" beforeDir="false" afterPath="$PROJECT_DIR$/haha.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/npy_to_npg.py" beforeDir="false" afterPath="$PROJECT_DIR$/npy_to_npg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/inferr_wavet_4gan_ca.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/inferr_wavet_4gan_ca.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/train_wavet_ca_fuser.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train_wavet_ca_fuser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,6 +140,7 @@
       <workItem from="1777192725369" duration="18428000" />
       <workItem from="1777259098030" duration="10863000" />
       <workItem from="1777293940640" duration="5999000" />
+      <workItem from="1777349845677" duration="6800000" />
     </task>
     <task id="LOCAL-00001" summary="第一次改，但是是半成品有问题">
       <option name="closed" value="true" />

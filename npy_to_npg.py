@@ -4,8 +4,8 @@ import os
 from glob import glob
 
 # 输入和输出路径
-input_dir = './datasets/S20-Chest/gt_wavelet/hh'
-output_dir = './results_vis_hh_gt'
+input_dir = './datasets/S20-Chest/paired_gt_npy'
+output_dir = './results_vis3'
 os.makedirs(output_dir, exist_ok=True)
 
 npy_files = glob(os.path.join(input_dir, '*.npy'))

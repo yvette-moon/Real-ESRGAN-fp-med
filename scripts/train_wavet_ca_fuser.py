@@ -65,7 +65,6 @@ class WaveletFusionDataset(Dataset):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser()
     parser.add_argument("--ll_dir", required=True)
     parser.add_argument("--lh_dir", required=True)
     parser.add_argument("--hl_dir", required=True)
@@ -88,7 +87,7 @@ def main():
 
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    ds = WaveletFusionDataset(args.ll_dir, args.lh_dir, args.hl_dir, args.hh_dir, args.gt_dir, args.ext)
+
     dl = DataLoader(ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
 
     model = WaveletCAFuser(channels=4, mid_channels=32).to(device)
@@ -105,9 +104,9 @@ def main():
             # If gt has same size as subbands, that means your gt is band-sized.
             # For iDWT supervision, gt should be full-resolution.
 
-            out_bands, _ = model(x)
-            ll, lh, hl, hh = torch.chunk(out_bands, 4, dim=1)
-
+            out_bands, _ = model(x)  # 1. 通过网络
+            out_bands = torch.clamp(out_bands, 0.0, 1.0)  # 2. 限制范围
+            ll, lh, hl, hh = torch.chunk(out_bands, 4, dim=1)  # 3. 再切分
             # [0,1] 子带 -> 原始小波系数域
             ll, lh, hl, hh = denorm_subbands(ll, lh, hl, hh)
 
