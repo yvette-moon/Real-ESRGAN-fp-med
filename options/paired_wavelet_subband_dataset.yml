@@ -1,0 +1,139 @@
+name: finetune_wavelet_multibranch
+model_type: WaveletMultiBranchModel
+scale: 4
+gan_on_3ch: true
+percep_on_3ch: false  # CT灰度可先关感知
+
+datasets:
+  train:
+    name: S20-Chest-Wavelet
+    type: PairedWaveletSubbandDataset
+    dataroot_lq_ll: datasets/S20-Chest/lq_wavelet/ll
+    dataroot_lq_lh: datasets/S20-Chest/lq_wavelet/lh
+    dataroot_lq_hl: datasets/S20-Chest/lq_wavelet/hl
+    dataroot_lq_hh: datasets/S20-Chest/lq_wavelet/hh
+    dataroot_gt: datasets/S20-Chest/npy  # 全分辨率GT
+    meta_info: datasets/S20-Chest/meta_info/meta_info_S20-Chest_npy.txt
+    lq_size: 64
+    use_hflip: true
+    use_rot: false
+
+network_g:
+  type: WaveletMultiBranchNet
+  num_in_ch: 4
+  num_feat: 32
+  num_block: 8
+  scale: 4
+  ca_reduction: 4
+
+network_d:
+  type: UNetDiscriminatorSN
+  num_in_ch: 3  # 若 gan_on_3ch=true
+  num_feat: 64
+  skip_connection: true
+
+# 其余 train/loss/logger 按你的现有 yml 延用
+
+
+# path
+path:
+  # use the pre-trained Real-ESRNet model
+  pretrain_network_g: experiments/pretrained_models/RealESRGAN_x4plus.pth
+  param_key_g: params_ema
+  strict_load_g: true
+  pretrain_network_d: experiments/pretrained_models/RealESRGAN_x4plus_netD.pth
+  param_key_d: params
+  strict_load_d: true
+  resume_state: ~
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [5000]
+    gamma: 0.5
+
+  total_iter: 5000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+  # perceptual loss (content and style losses)
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      # before relu
+      'conv1_2': 0.1
+      'conv2_2': 0.1
+      'conv3_4': 1
+      'conv4_4': 1
+      'conv5_4': 1
+    vgg_type: vgg19
+    use_input_norm: true
+    perceptual_weight: 0.1 #2
+    style_weight: 0
+    range_norm: false
+    criterion: l1
+  # gan loss
+  gan_opt:
+    type: GANLoss
+    gan_type: vanilla
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: 0.01
+
+  net_d_iters: 1
+  net_d_init_iters: 0
+
+# Uncomment these for validation
+# validation settings
+# val:
+#   val_freq: !!float 5e3
+#   save_img: True
+
+#   metrics:
+#     psnr: # metric name
+#       type: calculate_psnr
+#       crop_border: 4
+#       test_y_channel: false
+
+# logging settings
+#val:
+#  val_freq: 500
+ # save_img: True
+ # metrics:
+ #   psnr:
+  #    type: calculate_psnr
+  #    crop_border: 4
+  #    test_y_channel: false
+   # ssim:
+   #   type: calculate_ssim
+   #   crop_border: 4
+    #  test_y_channel: false
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
